@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0px;
+        font-size: 16px;
+        font-family: "Instrument Sans", sans-serif;
+      }
+
+      #form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 240px;
+      }
+
+      #form input,
+      textarea,
+      button {
+        width: 100%;
+        margin: 4px 0;
+      }
+
+      #todo-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 240px;
+        min-width: 240px;
+      }
+
+      .todo-list-item {
+        border: 1px solid rgb(95, 95, 95);
+        padding: 8px;
+        border-radius: 4px;
+        margin: 4px 0;
+        width: 100%;
+      }
+    </style>
+    <title>Document</title>
+  </head>
+  <body
+    style="
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    "
+  >
+    <form id="form" action="">
+      <input
+        id="todo-title"
+        type="text"
+        placeholder="Todo title"
+        name="todo-title"
+        required
+      />
+      <textarea
+        id="todo-description"
+        type="text"
+        placeholder="Todo description"
+        name="todo-description"
+        required
+      ></textarea>
+      <button>Add Todo</button> <br />
+    </form>
+    <div id="todo-list"></div>
+
+    <script>
+      let updatedTodoIndex = -1;
+      const todoList = [];
+
+      const formRef = document.getElementById("form");
+      const todoListRef = document.getElementById("todo-list");
+      const todoTitleInputRef = formRef.querySelector("#todo-title");
+      const todoDescriptionInputRef =
+        formRef.querySelector("#todo-description");
+
+      formRef.addEventListener("submit", function (e) {
+        e.preventDefault(); // untuk mencegah form reload.
+
+        if (updatedTodoIndex !== -1) {
+          todoList[updatedTodoIndex] = {
+            title: todoTitleInputRef.value,
+            description: todoDescriptionInputRef.value,
+          };
+          // revert back button behaviour to add todo
+          updatedTodoIndex = -1;
+          formRef.querySelector("button").innerHTML = "Add Todo";
+        } else {
+          todoList.push({
+            title: todoTitleInputRef.value,
+            description: todoDescriptionInputRef.value,
+          });
+        }
+
+        todoTitleInputRef.value = "";
+        todoDescriptionInputRef.value = "";
+
+        previewTodoList();
+      });
+
+      function previewTodoList() {
+        // Preview the todo list to HTML
+        todoListRef.innerHTML = "";
+        for (let i = 0; i < todoList.length; i++) {
+          todoListRef.innerHTML += `
+            <div id="todo-item-${i}" class="todo-list-item">
+              <p class="title">${todoList[i]["title"]}</p>
+              <p class="description" style="font-size: 12px;">${todoList[i]["description"]}</p>
+              <button class="btn-update">Update</button>
+              <button class="btn-delete">Delete</button>
+            </div>
+          `;
+        }
+
+        // Attach event listener to every single todo item's delete button
+        for (let i = 0; i < todoList.length; i++) {
+          const todoItemRef = document.getElementById(`todo-item-${i}`);
+          const todoItemDeleteButtonRef =
+            todoItemRef.querySelector(".btn-delete");
+
+          todoItemDeleteButtonRef.addEventListener("click", function () {
+            todoList.splice(i, 1);
+            todoItemRef.remove();
+          });
+        }
+
+        // Attach event listener to every single todo item's update button
+        for (let i = 0; i < todoList.length; i++) {
+          const todoItemRef = document.getElementById(`todo-item-${i}`);
+          const todoItemDeleteButtonRef =
+            todoItemRef.querySelector(".btn-update");
+
+          todoItemDeleteButtonRef.addEventListener("click", function () {
+            todoTitleInputRef.value =
+              todoItemRef.querySelector(".title").innerHTML;
+            todoDescriptionInputRef.value =
+              todoItemRef.querySelector(".description").innerHTML;
+
+            updatedTodoIndex = i;
+
+            formRef.querySelector("button").innerHTML = "Update Todo";
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
